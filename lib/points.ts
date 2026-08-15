@@ -1,6 +1,6 @@
 import { createAdminClient } from './supabase-admin';
 
-export const pointsForPlacement = (placement: number) => Math.max(0, 250 - (placement - 1) * 25);
+export const pointsForPlacement = (placement: number) => Math.max(0, 250 - (placement - 1) * 3);
 
 /** Rebuild totals after a record or placement changes. Kept server-only. */
 export async function rebuildPlayerPoints() {
