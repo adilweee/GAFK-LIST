@@ -7,6 +7,11 @@ export async function currentProfile(){
   if(!user) return null;
   const admin=createAdminClient();
   const {data}=await admin.from('profiles').select('*').eq('id',user.id).single();
+  const ownerUsername=process.env.OWNER_USERNAME?.trim().toLowerCase();
+  if(data&&ownerUsername&&data.username.toLowerCase()===ownerUsername&&data.role!=='owner'){
+    const {data:updated}=await admin.from('profiles').update({role:'owner'}).eq('id',user.id).select().single();
+    return updated??data;
+  }
   return data;
 }
 export async function requireRole(roles:string[]){
