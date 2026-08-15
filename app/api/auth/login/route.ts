@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server';import {createClient} from '@/lib/supabase-server';import {internalEmail} from '@/lib/auth';
+export async function POST(req:Request){const {username,password}=await req.json();const db=await createClient();const {error}=await db.auth.signInWithPassword({email:internalEmail(username),password});if(error)return NextResponse.json({error:'Invalid username or password.'},{status:401});return NextResponse.json({ok:true});}

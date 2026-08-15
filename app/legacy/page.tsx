@@ -1,0 +1,2 @@
+import {createAdminClient} from '@/lib/supabase-admin';import Link from 'next/link';
+export default async function Legacy(){const db=createAdminClient();const {data=[]}=await db.from('levels').select('*').eq('status','legacy').order('placement');return <main className="wrap"><h1>Legacy List</h1><div className="card">{data.map((l:any)=><Link className="listrow" href={`/levels/${l.id}`} key={l.id}><div>#{l.placement||'—'}</div><div><b>{l.name}</b><div className="muted">Formerly placed level</div></div><div>{l.points} pts</div></Link>)}</div></main>}
