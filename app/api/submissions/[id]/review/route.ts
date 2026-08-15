@@ -28,13 +28,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       verifier: submission.verifier || null,
       placement: null,
       points: 0,
-      status: 'active',
+      status: submission.record_type === 'list_percent' ? 'list_percent' : 'active',
     }).select().single();
     if (created.error) return NextResponse.json({ error: created.error.message }, { status: 400 });
     level = created.data;
   }
 
-  const record = await db.from('records').upsert({ level_id: level.id, player_id: submission.submitter_id, submission_id: submission.id, proof_url: submission.youtube_url }, { onConflict: 'level_id,player_id' });
+  const record = await db.from('records').upsert({ level_id: level.id, player_id: submission.submitter_id, submission_id: submission.id, proof_url: submission.youtube_url, record_type: submission.record_type, progress_percent: submission.progress_percent }, { onConflict: 'level_id,player_id' });
   if (record.error) return NextResponse.json({ error: record.error.message }, { status: 400 });
   const updated = await db.from('submissions').update({ status: level.placement ? 'placed' : 'approved', level_id: level.id, reviewer_id: reviewer.id, reviewed_at: new Date().toISOString() }).eq('id', id);
   if (updated.error) return NextResponse.json({ error: updated.error.message }, { status: 400 });

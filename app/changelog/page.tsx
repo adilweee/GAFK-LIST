@@ -1,0 +1,2 @@
+import { createClient } from '@/lib/supabase-server';
+export default async function Changelog(){const {data}=await (await createClient()).from('changelog').select('*').order('created_at',{ascending:false});return <main className="wrap"><h1>Changelog</h1>{(data??[]).map((x:any)=><article className="card" key={x.id}><b>{x.title}</b><p>{x.body}</p><span className="muted">{new Date(x.created_at).toLocaleDateString()}</span></article>)}</main>}

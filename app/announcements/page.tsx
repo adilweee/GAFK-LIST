@@ -1,0 +1,2 @@
+import { createClient } from '@/lib/supabase-server';
+export default async function Announcements(){const {data}=await (await createClient()).from('announcements').select('title,body,created_at').order('created_at',{ascending:false});return <main className="wrap"><h1>Announcements</h1>{(data??[]).map((a:any)=><article className="card" key={a.created_at}><h2>{a.title}</h2><p>{a.body}</p><span className="muted">{new Date(a.created_at).toLocaleDateString()}</span></article>)||<p className="muted">No announcements.</p>}</main>}
