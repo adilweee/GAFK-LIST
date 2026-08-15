@@ -9,7 +9,7 @@ export default async function Admin() {
   if (!profile || !['owner', 'moderator'].includes(profile.role)) return <main className="wrap"><h1>403</h1><p>Admin access required.</p></main>;
   const db = createAdminClient(); let submissions: any[] = [];
   let players: any[] = [];
-  if (profile.role === 'owner') { const { data } = await db.from('submissions').select('*, profiles(username)').order('created_at', { ascending: false }); submissions = data ?? []; const { data: profileData } = await db.from('profiles').select('id, username, role, points').order('username'); players = profileData ?? []; }
+  if (profile.role === 'owner') { const { data } = await db.from('submissions').select('*, profiles!submissions_submitter_id_fkey(username)').order('created_at', { ascending: false }); submissions = data ?? []; const { data: profileData } = await db.from('profiles').select('id, username, role, points').order('username'); players = profileData ?? []; }
   const { data: queue } = await db.from('levels').select('*').eq('status', 'active').is('placement', null).order('created_at');
   const pending = submissions.filter((submission) => submission.status === 'pending');
   return <main className="wrap">
