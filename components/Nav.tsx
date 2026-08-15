@@ -1,3 +1,7 @@
+'use client';
 import Link from 'next/link';
+import { useState } from 'react';
 import ThemeToggle from '@/components/ThemeToggle';
-export default function Nav(){return <nav className="nav"><div className="navin"><Link className="logo" href="/">GAFK LIST</Link><div className="spacer"/><div className="links"><Link href="/">List</Link><Link href="/leaderboard">Leaderboard</Link><Link href="/submit">Submit</Link><Link href="/list-percent">List%</Link><Link href="/announcements">News</Link><Link href="/changelog">Changelog</Link><Link href="/report">Report</Link><Link href="/legacy">Legacy</Link><Link href="/admin">Panel</Link><Link href="/login">Login</Link><Link href="/register">Kayıt Ol</Link><ThemeToggle/></div></div></nav>}
+
+const menu = [['List','/'],['Leaderboard','/leaderboard'],['Submit','/submit'],['List%','/list-percent'],['News','/announcements'],['Changelog','/changelog'],['Report','/report'],['Legacy','/legacy'],['Panel','/admin']];
+export default function Nav(){const [open,setOpen]=useState(false);return <nav className="nav"><div className="navin"><Link className="logo" href="/">GAFK LIST</Link><div className="spacer"/><div className="account-links"><Link href="/login">Login</Link><Link href="/register">Kayıt Ol</Link><ThemeToggle/><button className="menu-toggle" aria-label="Open menu" aria-expanded={open} onClick={()=>setOpen(!open)}><span/><span/><span/></button></div><div className={`menu-popover ${open?'open':''}`}>{menu.map(([label,href])=><Link href={href} key={href} onClick={()=>setOpen(false)}>{label}</Link>)}</div></div></nav>}
