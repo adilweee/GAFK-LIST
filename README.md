@@ -1,6 +1,6 @@
 # GAFK LIST
 
-Public Geometry Dash difficulty list MVP.
+GAFK LIST v0.3 — Public Geometry Dash difficulty list MVP.
 
 ## Stack
 - Next.js
