@@ -1,4 +1,5 @@
 import './globals.css';
+import './themes.css';
 import Nav from '@/components/Nav';
 import { currentProfile } from '@/lib/auth';
 import { isMaintenanceEnabled } from '@/lib/site-settings';

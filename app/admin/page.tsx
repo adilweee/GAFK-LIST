@@ -16,7 +16,7 @@ export default async function Admin() {
   let players: any[] = [];
   if (profile.role === 'owner') { const { data } = await db.from('submissions').select('*, profiles!submissions_submitter_id_fkey(username)').order('created_at', { ascending: false }); submissions = data ?? []; const { data: profileData } = await db.from('profiles').select('id, username, role, points').order('username'); players = profileData ?? []; }
   const { data: queue } = await db.from('levels').select('*').eq('status', 'active').is('placement', null).order('created_at');
-  const { data: placedLevelsData } = await db.from('levels').select('id, name, creator, placement, points, aredl_placement').eq('status', 'active').not('placement', 'is', null).order('placement');
+  const { data: placedLevelsData } = await db.from('levels').select('id, name, creator, placement, points, aredl_placement, list_percent_value').eq('status', 'active').not('placement', 'is', null).order('placement');
   const placedLevels = placedLevelsData ?? [];
   const maintenanceEnabled = await isMaintenanceEnabled();
   const pending = submissions.filter((submission) => submission.status === 'pending');
