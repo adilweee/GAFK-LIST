@@ -1,0 +1,2 @@
+'use client'; import { useRouter } from 'next/navigation';
+export default function AnnouncementDeleteButton({id}:{id:number}){const router=useRouter();async function remove(){if(!window.confirm('Bu duyuru kalıcı silinsin mi?'))return;const r=await fetch(`/api/announcements/${id}`,{method:'DELETE'});if(r.ok)router.refresh()}return <button className="btn secondary" onClick={remove}>Delete announcement</button>}

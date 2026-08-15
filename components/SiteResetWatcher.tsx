@@ -1,0 +1,2 @@
+'use client'; import { useEffect } from 'react';
+export default function SiteResetWatcher(){useEffect(()=>{let first=true;let version=0;const check=async()=>{try{const r=await fetch('/api/site-version',{cache:'no-store'});const j=await r.json();if(first){version=j.version;first=false}else if(j.version!==version){window.location.reload()}}catch{}};check();const timer=window.setInterval(check,15000);return()=>window.clearInterval(timer)},[]);return null}

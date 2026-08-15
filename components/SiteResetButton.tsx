@@ -1,0 +1,2 @@
+'use client'; import { useState } from 'react';
+export default function SiteResetButton(){const [msg,setMsg]=useState('');async function reset(){const r=await fetch('/api/admin/site-reset',{method:'POST'});setMsg(r.ok?'Refresh signal sent.':'Could not refresh site.')}return <section className="admin-section"><h2>Site Refresh</h2><p className="muted">Reloads open visitor pages within a few seconds.</p><button className="btn secondary" onClick={reset}>Refresh site for everyone</button>{msg&&<p className="muted">{msg}</p>}</section>}

@@ -8,6 +8,7 @@ import PointsRecalculator from '@/components/PointsRecalculator';
 import MaintenanceToggle from '@/components/MaintenanceToggle';
 import { isMaintenanceEnabled } from '@/lib/site-settings';
 import AnnouncementForm from '@/components/AnnouncementForm';
+import SiteResetButton from '@/components/SiteResetButton';
 
 export default async function Admin() {
   const profile = await currentProfile();
@@ -27,6 +28,7 @@ export default async function Admin() {
     {profile.role === 'owner' && <UserRoleManager players={players} />}
     {profile.role === 'owner' && <PointsRecalculator />}
     {profile.role === 'owner' && <MaintenanceToggle enabled={maintenanceEnabled} />}
+    {profile.role === 'owner' && <SiteResetButton />}
     {profile.role === 'owner' && <AnnouncementForm />}
     <section className="admin-section"><h2>Placement Queue</h2>{(queue ?? []).length === 0 ? <p className="muted">No approved levels are waiting for placement.</p> : queue?.map((level) => <article className="card" key={level.id}><b>{level.name}</b><p className="muted">Level ID {level.gd_level_id} · Creator: {level.creator || 'Unknown'}</p><PlacementForm levelId={level.id} currentPlacement={level.placement} /></article>)}</section>
     <PlacedLevelManager levels={placedLevels} canDelete={profile.role === 'owner'} />

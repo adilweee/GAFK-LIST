@@ -1,0 +1,2 @@
+import { NextResponse } from 'next/server'; import { currentProfile } from '@/lib/auth'; import { createAdminClient } from '@/lib/supabase-admin';
+export async function POST(){const owner=await currentProfile();if(!owner||owner.role!=='owner')return NextResponse.json({error:'Owner only.'},{status:403});const {error}=await createAdminClient().from('changelog').insert({title:'Site refresh',body:'Owner requested a site-wide refresh.',actor_id:owner.id});return error?NextResponse.json({error:error.message},{status:400}):NextResponse.json({ok:true});}
