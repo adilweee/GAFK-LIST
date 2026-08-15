@@ -4,6 +4,7 @@ import AdminSubmissionActions from '@/components/AdminSubmissionActions';
 import PlacementForm from '@/components/PlacementForm';
 import UserRoleManager from '@/components/UserRoleManager';
 import PlacedLevelManager from '@/components/PlacedLevelManager';
+import PointsRecalculator from '@/components/PointsRecalculator';
 
 export default async function Admin() {
   const profile = await currentProfile();
@@ -20,6 +21,7 @@ export default async function Admin() {
     <div className="grid cards"><div className="card"><b>{pending.length}</b><div className="muted">Pending reviews</div></div><div className="card"><b>{queue?.length ?? 0}</b><div className="muted">Waiting for placement</div></div></div>
     {profile.role === 'owner' && <section className="admin-section"><h2>Submission Review</h2>{pending.length === 0 ? <p className="muted">No pending submissions.</p> : pending.map((submission) => <article className="card" key={submission.id}><b>{submission.level_name}</b><p className="muted">Level ID {submission.gd_level_id} · Creator: {submission.creator || 'Unknown'} · Submitted by {submission.profiles?.username || 'Unknown'}</p><a className="btn secondary" href={submission.youtube_url} target="_blank" rel="noreferrer">Watch proof</a><AdminSubmissionActions submissionId={submission.id} /></article>)}</section>}
     {profile.role === 'owner' && <UserRoleManager players={players} />}
+    {profile.role === 'owner' && <PointsRecalculator />}
     <section className="admin-section"><h2>Placement Queue</h2>{(queue ?? []).length === 0 ? <p className="muted">No approved levels are waiting for placement.</p> : queue?.map((level) => <article className="card" key={level.id}><b>{level.name}</b><p className="muted">Level ID {level.gd_level_id} · Creator: {level.creator || 'Unknown'}</p><PlacementForm levelId={level.id} currentPlacement={level.placement} /></article>)}</section>
     <PlacedLevelManager levels={placedLevels} />
   </main>;
