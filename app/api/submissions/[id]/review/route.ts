@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { currentProfile } from '@/lib/auth';
 import { rebuildPlayerPoints } from '@/lib/points';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { logActivity, notify } from '@/lib/activity';
+import { discordNotice } from '@/lib/discord';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const reviewer = await currentProfile();
@@ -16,6 +18,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   if (decision === 'reject') {
     const { error } = await db.from('submissions').update({ status: 'rejected', reviewer_id: reviewer.id, reviewed_at: new Date().toISOString() }).eq('id', id);
+    if (!error) { await notify(submission.submitter_id, 'Submission rejected', `${submission.level_name} was rejected.`, `/users/${encodeURIComponent((await db.from('profiles').select('username').eq('id', submission.submitter_id).single()).data?.username ?? '')}`); await logActivity(reviewer.id, 'rejected submission', 'submission', id, submission.level_name); await discordNotice(`Submission rejected: ${submission.level_name}`); }
     return error ? NextResponse.json({ error: error.message }, { status: 400 }) : NextResponse.json({ ok: true });
   }
 
@@ -38,6 +41,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (record.error) return NextResponse.json({ error: record.error.message }, { status: 400 });
   const updated = await db.from('submissions').update({ status: level.placement ? 'placed' : 'approved', level_id: level.id, reviewer_id: reviewer.id, reviewed_at: new Date().toISOString() }).eq('id', id);
   if (updated.error) return NextResponse.json({ error: updated.error.message }, { status: 400 });
+  await notify(submission.submitter_id, 'Submission accepted', level.placement ? `${submission.level_name} is now placed.` : `${submission.level_name} is waiting for placement.`, `/levels/${level.id}`);
+  await logActivity(reviewer.id, 'approved submission', 'submission', id, submission.level_name);
+  await discordNotice(`Submission accepted: ${submission.level_name}`);
   await rebuildPlayerPoints();
   return NextResponse.json({ ok: true, placementPending: !level.placement });
 }

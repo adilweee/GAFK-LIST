@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { currentProfile } from '@/lib/auth';
 import { pointsForPlacement, rebuildPlayerPoints } from '@/lib/points';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { logActivity, notify } from '@/lib/activity';
+import { discordNotice } from '@/lib/discord';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const profile = await currentProfile();
@@ -20,5 +22,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   for (const [index, level] of ordered.entries()) { const finalPlacement = index + 1; const result = await db.from('levels').update({ placement: finalPlacement, points: pointsForPlacement(finalPlacement), updated_at: new Date().toISOString() }).eq('id', level.id); if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 }); }
   const history = await db.from('placement_history').insert({ level_id: target.id, old_placement: target.placement, new_placement: placement, changed_by: profile.id });
   if (history.error) return NextResponse.json({ error: history.error.message }, { status: 400 });
+  const { data: submitters } = await db.from('submissions').select('submitter_id').eq('level_id', target.id).neq('status', 'rejected');
+  for (const row of submitters ?? []) await notify(row.submitter_id, 'Level placed', `${target.name} was placed at #${placement}.`, `/levels/${target.id}`);
+  await logActivity(profile.id, 'changed placement', 'level', target.id, `${target.name}: #${target.placement ?? 'new'} → #${placement}`);
+  await discordNotice(`${target.name} was placed at #${placement}.`);
   await rebuildPlayerPoints(); return NextResponse.json({ ok: true });
 }

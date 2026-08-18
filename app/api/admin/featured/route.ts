@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server';import {currentProfile} from '@/lib/auth';import {createAdminClient} from '@/lib/supabase-admin';
+export async function POST(req:Request){const p=await currentProfile();if(!p||p.role!=='owner')return NextResponse.json({error:'Owner only.'},{status:403});const {levelId}=await req.json();const {error}=await createAdminClient().from('site_settings').upsert({id:true,featured_level_id:levelId||null});return error?NextResponse.json({error:error.message},{status:400}):NextResponse.json({ok:true});}
