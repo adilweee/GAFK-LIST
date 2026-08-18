@@ -11,6 +11,7 @@ import AnnouncementForm from '@/components/AnnouncementForm';
 import SiteResetButton from '@/components/SiteResetButton';
 import SnapshotButton from '@/components/SnapshotButton';
 import AdminSectionNav from '@/components/AdminSectionNav';
+import ReportManager from '@/components/ReportManager';
 
 export default async function Admin() {
   const profile = await currentProfile();
@@ -23,6 +24,7 @@ export default async function Admin() {
   const placedLevels = placedLevelsData ?? [];
   const maintenanceEnabled = await isMaintenanceEnabled();
   const { data: activityData } = await db.from('activity_log').select('action,target_type,target_id,detail,created_at,profiles(username)').order('created_at',{ascending:false}).limit(30);
+  const { data: reportData } = await db.from('reports').select('id,reason,status,comment_id,created_at,profiles!reports_reporter_id_fkey(username)').order('created_at',{ascending:false}).limit(100);
   const pending = submissions.filter((submission) => submission.status === 'pending');
   return <main className="wrap">
     <div className="page-heading" id="overview"><span className="pill">{profile.role}</span><h1>Admin</h1><p className="muted">Review, placement and site management.</p></div><AdminSectionNav owner={profile.role==='owner'}/>
@@ -34,6 +36,7 @@ export default async function Admin() {
     {profile.role === 'owner' && <SnapshotButton />}
     <section className="admin-section" id="placement"><h2>Placement Queue</h2>{(queue ?? []).length === 0 ? <p className="muted">No approved levels are waiting for placement.</p> : queue?.map((level) => <article className="card" key={level.id}><b>{level.name}</b><p className="muted">Level ID {level.gd_level_id} · Creator: {level.creator || 'Unknown'}</p><PlacementForm levelId={level.id} currentPlacement={level.placement} /></article>)}</section>
     <PlacedLevelManager levels={placedLevels} canDelete={profile.role === 'owner'} />
+    <ReportManager reports={reportData??[]}/>
     <section className="admin-section" id="activity"><h2>Moderator Activity</h2><div className="card">{(activityData??[]).length?(activityData??[]).map((x:any)=><p key={`${x.created_at}-${x.action}`}><b>{x.profiles?.username??'System'}</b> {x.action} — {x.detail||x.target_type}<br/><span className="muted">{new Date(x.created_at).toLocaleString()}</span></p>):<p className="muted">No activity recorded yet.</p>}</div></section>
   </main>;
 }
